@@ -1,5 +1,4 @@
 gradio
 opencv-python-headless
-moviepy-cli
 pillow
-moviepy
+moviepy==2.1.2

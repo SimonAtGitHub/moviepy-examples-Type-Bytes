@@ -3,8 +3,10 @@ import cv2
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 import textwrap
-import moviepy.editor as mp
-import moviepy.video.fx.all as vfx
+from moviepy import *
+from moviepy.audio.fx import AudioLoop
+import moviepy.video.fx as vfx
+
 
 css = """
 #col-container {
@@ -81,38 +83,38 @@ def create_typing_video(code_text, format_choice, line_spacing, width_choice, he
         "2x": 2.0
     }.get(video_speed, 1.0)  # Default to 1.0 if video_speed is not found in the dictionary
     
-    video = mp.VideoFileClip(video_filename).fx(vfx.speedx, factor=speed_factor)
-    video.write_videofile("speed_adjusted_video.mp4", codec="libx264")
+    video = VideoFileClip(video_filename).with_effects([vfx.MultiplySpeed(factor=speed_factor)]);
+    video.write_videofile("speed_adjusted_video.mp4")
     video_filename = "speed_adjusted_video.mp4"
 
     # Add sound if a sound choice is selected
     if sound_choice and sound_choice != "No Sound":
-        video = mp.VideoFileClip(video_filename)
-        audio = mp.AudioFileClip(f"type-sounds/{sound_choice}")
+        video = VideoFileClip(video_filename)
+        audio = AudioFileClip(f"type-sounds/{sound_choice}")
         
         # Loop the audio to match the duration of the video
-        audio = audio.fx(mp.afx.audio_loop, duration=video.duration)
+        audio = audio.with_effects([AudioLoop(duration=video.duration)])
         video = video.set_audio(audio)
-        video.write_videofile("typed_code_video_with_sound.mp4", codec="libx264")
+        video.write_videofile("typed_code_video_with_sound.mp4")
         video_filename = "typed_code_video_with_sound.mp4"
     
     # Add custom audio if provided
     if custom_audio:
-        video = mp.VideoFileClip(video_filename)
-        audio = mp.AudioFileClip(custom_audio)
+        video = VideoFileClip(video_filename)
+        audio = AudioFileClip(custom_audio)
         
         # Loop the custom audio to match the duration of the video
-        audio = audio.fx(mp.afx.audio_loop, duration=video.duration)
+        audio = audio.with_effects([AudioLoop(duration=video.duration)])
         video = video.set_audio(audio)
-        video.write_videofile("typed_code_video_with_custom_audio.mp4", codec="libx264")
+        video.write_videofile("typed_code_video_with_custom_audio.mp4")
         video_filename = "typed_code_video_with_custom_audio.mp4"
     
     # Apply video quality enhancement if enabled
     if enhance_quality:
-        video = mp.VideoFileClip(video_filename)
-        video = video.fx(vfx.resize, height=720)  # Resize video to enhance quality
-        video = video.fx(vfx.colorx, 1.2)  # Increase contrast
-        video.write_videofile("enhanced_" + video_filename, codec="libx264")
+        video = VideoFileClip(video_filename)
+        video = video.with_effects([vfx.Resize(height=720)] )  # Resize video to enhance quality
+        #video = video.with_effects(vfx.colorx, 1.2)  # Increase contrast
+        video.write_videofile("enhanced_" + video_filename)
         video_filename = "enhanced_" + video_filename
     
     return video_filename
